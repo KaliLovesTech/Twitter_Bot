@@ -22,4 +22,9 @@ url = _create_url("knowledge")
 # create soup function
 soup = _get_page(url)
 
-print(soup.find_all(class_="quoteText"))
+# store all quotes in a variable called "raw_quotes"
+raw_quotes = soup.find_all(class_="quoteText")
+
+# write a for loop to loop through all of the quotes
+for quote in raw_quotes:
+    print(quote.contents)
