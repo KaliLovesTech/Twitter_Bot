@@ -1,5 +1,6 @@
 import requests as _request
 import bs4 as _bs4
+import constants as _constants
 
 
 # define function to format the url
@@ -17,14 +18,42 @@ def _get_page(url: str) -> _bs4.BeautifulSoup:
     return soup
 
 
-# create url function
-url = _create_url("knowledge")
-# create soup function
-soup = _get_page(url)
+# define a function to extract the author and and quote
+def _extract_author_and_quote(quote):
+    # get first quote
+    quote_text = quote.contents[0].strip()
+    # get author
+    author = quote.find(class_="authorOrTitle").text.strip()
 
-# store all quotes in a variable called "raw_quotes"
-raw_quotes = soup.find_all(class_="quoteText")
+    # return tuple
+    return quote_text, author
 
-# write a for loop to loop through all of the quotes
-for quote in raw_quotes:
-    print(quote.contents)
+
+# define a function that will loop through all of the quotes
+def scrape_quotes():
+    # create a list that will contain all of the quotes, authors, genre
+    collections = list()
+    # for loop to loop through all of the tags
+    for tag in _constants.TAGS:
+        # get url and pass in the tag name
+        url = _create_url(tag)
+        # create the soup object and pass in the url
+        soup = _get_page(url)
+        # use 'find_all' method and store all quotes in a variable called "raw_quotes"
+        raw_quotes = soup.find_all(class_="quoteText")
+        # loop through all of the quotes
+        for quote in raw_quotes:
+            quote_text, author = _extract_author_and_quote(quote)
+            # define the dictionary for the collections list
+            data = {
+                "quote": quote_text,
+                "author": author,
+                "genre": tag,
+            }
+            # append data to collections list
+            collections.append(data)
+
+    return collections
+
+
+print(scrape_quotes())
